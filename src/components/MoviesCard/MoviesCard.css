@@ -93,6 +93,10 @@
     height: 236px;
   }
 
+  .card__title {
+    width: 220px;
+  }
+
   .card__image {
     width: 300px;
     height: 168px;
