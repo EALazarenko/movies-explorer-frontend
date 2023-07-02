@@ -1,0 +1,100 @@
+.card {
+  list-style: none;
+  background: #222;
+  box-shadow: 0px 4px 30px 0px rgba(0, 0, 0, 0.08);
+  height: 271px;
+  width: 364px;
+}
+
+.card__place {
+  display: flex;
+  justify-content: space-between;
+  padding: 14px;
+}
+
+.card__info {
+  margin: 0;
+  padding: 0;
+}
+
+.card__title {
+  margin: 0 0 9px;
+  padding: 0;
+  font-size: 15px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  width: 280px;
+}
+
+.card__duration {
+  margin: 0;
+  padding: 0;
+  color: #8B8B8B;
+  font-size: 11px;
+  font-weight: 400;
+}
+
+.card__button {
+  background: none;
+  width: 30px;
+  height: 30px;
+  background-image: url('../../images/save9d.svg');
+  border: none;
+  margin: 0;
+  padding: 0;
+  cursor: pointer;
+  transition: .3s;
+}
+
+.card__button-save {
+  background-image: url('../../images/save9.svg');
+}
+
+.card__button-delete {
+  background: none;
+  width: 30px;
+  height: 30px;
+  background-image: url('../../images/delete-btn.svg');
+  border: none;
+  margin: 0;
+  padding: 0;
+  cursor: pointer;
+  transition: .3s;
+}
+
+.card__button-delete:hover {
+  opacity: .6;
+}
+
+.card__image {
+  width: 364px;
+  height: 203px;
+  padding: 0;
+  margin: 0;
+}
+
+@media screen and (max-width: 850px) {
+  .card {
+    width: 339px;
+    height: 258px;
+  }
+
+  .card__image {
+    width: 339px;
+    height: 190px;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .card {
+    width: 300px;
+    height: 236px;
+  }
+
+  .card__image {
+    width: 300px;
+    height: 168px;
+  }
+}
