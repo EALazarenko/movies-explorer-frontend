@@ -1,0 +1,83 @@
+.mobile-menu {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, .6);
+  justify-content: flex-end;
+  display: flex;
+  transition: all .5s linear;
+  z-index: 2;
+}
+
+.mobile-menu__container {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  background-color: #202020;
+  width: 68%;
+  height: 1024px;
+}
+
+.mobile-menu__close-btn {
+  width: 33px;
+  height: 33px;
+  background: url(../../images/close-btn.svg) center center/cover no-repeat;
+  border: none;
+  position: absolute;
+  top: 21px;
+  right: 21px;
+}
+
+.mobile-menu__links {
+  margin: 161px 0px 621px 0;
+  display: flex;
+  row-gap: 27px;
+  flex-direction: column;
+  align-items: center;
+}
+
+.mobile-menu__link {
+  color: #FFF;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 500;
+  text-decoration: none;
+  padding: 0 0 2px;
+}
+
+.mobile-menu__link:hover {
+  border-bottom: 2px solid #FFF;
+  padding: 0;
+}
+
+.mobile-menu__account-link {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 92px;
+}
+
+@media screen and (min-width: 820px) {
+  .mobile-menu {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .mobile-menu__container {
+    width: 100%;
+  }
+
+  .mobile-menu__close-btn {
+    margin: -8px;
+  }
+
+  .mobile-menu__links {
+    margin: 146px 0px 442px 0;
+    row-gap: 23px;
+  }
+}

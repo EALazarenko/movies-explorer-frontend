@@ -1,0 +1,149 @@
+.login {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  max-width: 396px;
+  width: 100%;
+  margin: 69px auto;
+}
+
+.login__block {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+}
+
+.login__title {
+  font-size: 24px;
+  font-weight: 500;
+  margin: 38px 0 31px;
+}
+
+.login__form {
+  display: flex;
+  flex-direction: column;
+  max-width: 394px;
+  width: 100%;
+}
+
+.login__value {
+  color: #8B8B8B;
+  font-size: 10px;
+  display: flex;
+  flex-direction: column;
+  margin: 10px 0;
+}
+
+.login__input {
+  background-color: #202020;
+  border: none;
+  border-bottom: 1px solid #424242;
+  color: #fff;
+  font-size: 14px;
+  padding-bottom: 9px;
+  margin: 5px 0;
+}
+
+.login__input:focus {
+  outline: 0;
+  border-bottom: 1px solid #4285F4;
+  font-weight: 500;
+}
+
+.login__input_error {
+  color: #EE3465;
+}
+
+.login__span-error {
+  color: #EE3465;
+  font-size: 10px;
+  text-align: left;
+}
+
+.login__button {
+  border-radius: 3px;
+  background: #4285F4;
+  width: 396px;
+  height: 45px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  margin: 206px 0 4px;
+  color: #fff;
+  border: 0;
+  cursor: pointer;
+  transition: .5s;
+}
+
+.login__button:hover {
+  opacity: .6;
+}
+
+.login__link-login {
+  color: #8B8B8B;
+  font-size: 14px;
+  align-self: center;
+}
+
+.login__button-login {
+  color: #4285F4;
+  font-size: 14px;
+  text-decoration: none;
+  padding-left: 6px;
+  cursor: pointer;
+  transition: .5s;
+}
+
+.login__button-login:hover {
+  opacity: .6;
+}
+
+@media screen and (max-width: 850px) {
+  .login {
+    margin: 232px auto;
+  }
+
+  .login__title {
+    margin: 38px 0 31px;
+  }
+
+  .login__span-error {
+    padding-top: 1px;
+  }
+
+  .login__button {
+    margin: 205px 0 4px;
+  }
+}
+
+@media screen and (max-width: 560px) {
+  .login {
+    margin: 56px auto;
+  }
+
+  .login__block {
+    align-items: center;
+  }
+
+  .login__title {
+    margin: 48px 0 71px;
+  }
+
+  .login__form {
+    max-width: 262px;
+  }
+
+  .login__button {
+    width: 260px;
+    font-size: 12px;
+    margin: 293px 0 3px;
+  }
+
+  .login__link-login {
+    font-size: 12px;
+  }
+
+  .login__button-login {
+    font-size: 12px;
+  }
+}
