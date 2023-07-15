@@ -1,8 +1,26 @@
+import React, { useCallback, useState } from 'react';
 import { Link } from 'react-router-dom';
 import './Login.css';
 import Logo from '../Logo/Logo';
 
-const Login = () => {
+const Login = ({ onLogin }) => {
+  const [userData, setUserData] = useState({
+    email: '',
+    password: ''
+  })
+
+  const handleChange = useCallback((e) => {
+    const { name, value } = e.target;
+    setUserData({
+      ...userData,
+      [name]: value
+    })
+  }, [userData]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onLogin(userData);
+  }
 
   return (
     <section className='login'>
@@ -10,7 +28,7 @@ const Login = () => {
         <Logo />
         <h1 className='login__title'>Рады видеть!</h1>
       </div>
-      <form className="login__form">
+      <form className="login__form" onSubmit={handleSubmit}>
         <label className='login__value'>
           E-mail
           <input
@@ -21,8 +39,10 @@ const Login = () => {
             required={true}
             minLength={5}
             maxLength={30}
-            defaultValue='pochta@yandex.ru'
+            /* defaultValue='pochta@yandex.ru' */
+            value={userData.email || ''}
             autoFocus={true}
+            onChange={handleChange}
           />
           <span className='login__span-error'></span>
         </label>
@@ -36,6 +56,8 @@ const Login = () => {
             required={true}
             minLength={5}
             maxLength={30}
+            value={userData.password || ''}
+            onChange={handleChange}
           />
           <span className='login__span-error'></span>
         </label>

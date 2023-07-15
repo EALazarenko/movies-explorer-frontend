@@ -1,8 +1,15 @@
 import './FilterCheckbox.css';
 import { useState } from 'react';
+import { useLocalStorage } from '../../hooks/useLocalStorage';
 
-const FilterCheckbox = () => {
-  const [isToggle, setIsToggle] = useState(true)
+const FilterCheckbox = ({ setIsShortMovies }) => {
+  /* const [isToggle, setIsToggle] = useState(false); */
+  const [isToggle, setIsToggle] = useLocalStorage('isToggle', false);
+
+  const handleToggle = () => {
+    setIsToggle(!isToggle);
+    setIsShortMovies(!isToggle);
+  };
 
   return (
     <div className='filter'>
@@ -12,8 +19,7 @@ const FilterCheckbox = () => {
           type='checkbox'
           name='checkbox'
           id='checkbox'
-          checked={isToggle}
-          onChange={() => setIsToggle(!isToggle)}
+          onChange={handleToggle}
         />
         <span className={`filter__checkbox-visible ${isToggle && 'filter__checkbox-on'}`} />
         Короткометражки

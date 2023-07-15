@@ -1,8 +1,32 @@
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import './Register.css';
 import Logo from '../Logo/Logo';
 
-const Register = () => {
+const Register = ({ onRegister }) => {
+  const [userData, setUserData] = useState({
+    name: '',
+    email: '',
+    password: ''
+  });
+
+  function handleChange(e) {
+    const { name, value } = e.target;
+    setUserData({
+      ...userData,
+      [name]: value
+    });
+
+  }
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    if (!userData.name || !userData.email || !userData.password) {
+      return;
+    }
+    onRegister(userData.name, userData.email, userData.password);
+    setUserData({ name: '', email: '', password: '' });
+  }
 
   return (
     <section className='register'>
@@ -10,7 +34,7 @@ const Register = () => {
         <Logo />
         <h1 className='register__title'>Добро пожаловать!</h1>
       </div>
-      <form className="register__form">
+      <form className="register__form" onSubmit={handleSubmit}>
         <label className='register__value'>
           Имя
           <input
@@ -21,7 +45,9 @@ const Register = () => {
             required={true}
             minLength={2}
             maxLength={30}
-            defaultValue='Виталий'
+            defaultValue={userData.name}
+            value={userData.name}
+            onChange={handleChange}
           />
           <span className='register__span-error'></span>
         </label>
@@ -35,8 +61,10 @@ const Register = () => {
             required={true}
             minLength={5}
             maxLength={30}
-            defaultValue='pochta@yandex.ru'
+            /* defaultValue='pochta@yandex.ru' */
+            value={userData.email}
             autoFocus={true}
+            onChange={handleChange}
           />
           <span className='register__span-error'></span>
         </label>
@@ -50,7 +78,9 @@ const Register = () => {
             required={true}
             minLength={5}
             maxLength={30}
-            defaultValue='qwerty12345'
+            /* defaultValue='qwerty12345' */
+            value={userData.password}
+            onChange={handleChange}
           />
           <span className='register__span-error'>Что-то пошло не так...</span>
         </label>

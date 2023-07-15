@@ -1,10 +1,36 @@
+import React, { useContext, useState, useEffect } from "react";
 import './Profile.css';
+import { CurrentUserContext } from '../../contexts/CurrentUserContext';
 
-const Profile = () => {
+const Profile = ({ onLogout, onUpdateUser }) => {
+  const currentUser = useContext(CurrentUserContext);
+  const [isName, setIsName] = useState('');
+  const [isEmail, setIsEmail] = useState('');
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    onUpdateUser({
+      name: isName,
+      email: isEmail,
+    });
+  }
+
+  useEffect(() => {
+    setIsName(currentUser.name);
+    setIsEmail(currentUser.email);
+  }, [currentUser]);
+
+  function handleChangeName(e) {
+    setIsName(e.target.value)
+  }
+
+  function handleChangeEmail(e) {
+    setIsEmail(e.target.value)
+  }
 
   return (
     <section className='profile'>
-      <h2 className='profile__title'>Привет, Виталий!</h2>
+      <h2 className='profile__title'>Привет, {isName}!</h2>
       <form className='profile__form'>
         <label className='profile__value'>
           Имя
@@ -17,7 +43,8 @@ const Profile = () => {
             required={true}
             minLength={2}
             maxLength={30}
-            defaultValue='Виталий'
+            defaultValue={isName}
+            onChange={handleChangeName}
           />
         </label>
         <label className="profile__value">
@@ -31,12 +58,25 @@ const Profile = () => {
             required={true}
             minLength={5}
             maxLength={30}
-            defaultValue='pochta@yandex.ru'
+            defaultValue={isEmail}
+            onChange={handleChangeEmail}
           />
         </label>
         <div className='profile__button'>
-          <button className='profile__edit' type='submit' title='Редактировать'>Редактировать</button>
-          <button className='profile__logout' type='button' title='Выйти'>Выйти из аккаунта</button>
+          <button
+            className='profile__edit'
+            type='submit'
+            title='Редактировать'
+            onSubmit={handleSubmit}>
+            Редактировать
+          </button>
+          <button
+            className='profile__logout'
+            type='button'
+            title='Выйти'
+            onClick={onLogout}>
+            Выйти из аккаунта
+          </button>
         </div>
       </form>
     </section>

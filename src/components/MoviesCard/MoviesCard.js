@@ -1,17 +1,18 @@
 import './MoviesCard.css';
 import { useState } from 'react';
+import { convertMinToHours } from '../../utils/utils';
 
-const MoviesCard = ({ movie, isSavedMovies }) => {
+const MoviesCard = ({ movie, isSavedMovies, isLiked }) => {
 
-  const { image, title, isLiked, hronology } = movie;
+  const { image, nameRU, duration } = movie;
   const [addSaved, setAddSaved] = useState(false);
 
   return (
     <li className='card'>
       <div className='card__place'>
         <div className='card__info'>
-          <h4 className='card__title'>{title}</h4>
-          <p className='card__duration'>{hronology}</p>
+          <h4 className='card__title'>{nameRU}</h4>
+          <p className='card__duration'>{convertMinToHours(duration)}</p>
         </div>
         {isSavedMovies &&
           <button
@@ -29,7 +30,16 @@ const MoviesCard = ({ movie, isSavedMovies }) => {
           </button>
         }
       </div>
-      <img src={image} alt={title} className='card__image' />
+      <a href={movie.trailerLink} className="card__link" target="_blank" rel="noreferrer">
+        <img
+          src={isSavedMovies ?
+            image :
+            `https://api.nomoreparties.co/${image.url}`
+          }
+          alt={`Обложка фильма: ${nameRU}`}
+          className='card__image'
+        />
+      </a>
     </li>
   )
 }
