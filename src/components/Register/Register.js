@@ -1,31 +1,17 @@
-import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import './Register.css';
 import Logo from '../Logo/Logo';
+import { useFormValidation } from "../../hooks/useFormValidation";
 
 const Register = ({ onRegister }) => {
-  const [userData, setUserData] = useState({
-    name: '',
-    email: '',
-    password: ''
-  });
-
-  function handleChange(e) {
-    const { name, value } = e.target;
-    setUserData({
-      ...userData,
-      [name]: value
-    });
-
-  }
+  const { values, handleChange, errors, isValid } = useFormValidation();
 
   function handleSubmit(e) {
     e.preventDefault();
-    if (!userData.name || !userData.email || !userData.password) {
+    if (!isValid) {
       return;
     }
-    onRegister(userData.name, userData.email, userData.password);
-    setUserData({ name: '', email: '', password: '' });
+    onRegister(values.name, values.email, values.password);
   }
 
   return (
@@ -45,11 +31,11 @@ const Register = ({ onRegister }) => {
             required={true}
             minLength={2}
             maxLength={30}
-            defaultValue={userData.name}
-            value={userData.name}
+            value={values.name}
             onChange={handleChange}
+            pattern="[A-Za-zА-Яа-яЁё\- ]+"
           />
-          <span className='register__span-error'></span>
+          <span className='register__span-error'>{errors.name}</span>
         </label>
         <label className='register__value'>
           E-mail
@@ -61,12 +47,12 @@ const Register = ({ onRegister }) => {
             required={true}
             minLength={5}
             maxLength={30}
-            /* defaultValue='pochta@yandex.ru' */
-            value={userData.email}
+            value={values.email}
             autoFocus={true}
             onChange={handleChange}
+            pattern='^[\w\-\.]+@([\w\-]+\.)+[\w\-]{2,4}$'
           />
-          <span className='register__span-error'></span>
+          <span className='register__span-error'>{errors.email}</span>
         </label>
         <label className='register__value'>
           Пароль
@@ -78,11 +64,10 @@ const Register = ({ onRegister }) => {
             required={true}
             minLength={5}
             maxLength={30}
-            /* defaultValue='qwerty12345' */
-            value={userData.password}
+            value={values.password}
             onChange={handleChange}
           />
-          <span className='register__span-error'>Что-то пошло не так...</span>
+          <span className='register__span-error'>{errors.password}</span>
         </label>
 
         <button type="submit" className="register__button">Зарегистрироваться</button>

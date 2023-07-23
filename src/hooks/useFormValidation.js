@@ -1,31 +1,52 @@
 import { useCallback, useState } from "react";
+import { isEmail } from "validator";
 
-export const useFormValidation = () => {
+export function useForm() {
+  const [values, setValues] = useState({});
+
+  const handleChange = (event) => {
+    const target = event.target;
+    const value = target.value;
+    const name = target.name;
+    setValues({ ...values, [name]: value });
+  };
+
+  return { values, handleChange, setValues };
+}
+
+export function useFormValidation() {
   const [values, setValues] = useState({});
   const [errors, setErrors] = useState({});
-  const [isFormValid, setIsFormValid] = useState(false);
+  const [isValid, setIsValid] = useState(false);
 
-  const handleChange = (e) => {
-    const target = e.target;
+  const handleChange = (event) => {
+    const target = event.target;
     const name = target.name;
     const value = target.value;
-    setValues({
-      ...values, [name]: value
-    });
-    setErrors({
-      ...errors, [name]: target.validationMessage
-    });
-    setIsFormValid(target.closest('form').checkValidity());
+    const type = target.type;
+
+    setValues({ ...values, [name]: value });
+
+    if (type === "email" && !isEmail(value)) {
+      setErrors({
+        ...errors,
+        [name]: "Введите корректный формат E-mail.",
+      });
+    } else {
+      setErrors({ ...errors, [name]: target.validationMessage });
+    }
+
+    setIsValid(target.closest("form").checkValidity());
   };
 
   const resetForm = useCallback(
     (newValues = {}, newErrors = {}, newIsValid = false) => {
       setValues(newValues);
       setErrors(newErrors);
-      setIsFormValid(newIsValid);
+      setIsValid(newIsValid);
     },
-    [setValues, setErrors, setIsFormValid]
+    [setValues, setErrors, setIsValid]
   );
 
-  return { values, setValues, setIsFormValid, handleChange, errors, isFormValid, resetForm };
-};
+  return { values, handleChange, errors, isValid, resetForm };
+}

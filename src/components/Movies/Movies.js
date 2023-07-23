@@ -1,57 +1,65 @@
-import { useState, useEffect } from 'react';
-import { getMovies } from '../../utils/MoviesApi';
 import Footer from '../Footer/Footer';
 import MoviesCardList from '../MoviesCardList/MoviesCardList';
 import SearchForm from '../SearchForm/SearchForm';
 import './Movies.css';
-import { useFormValidation } from '../../hooks/useFormValidation';
 import { DURATION_SHORT_MOVIE } from '../../utils/constant';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
+import Preloader from '../Preloader/Preloader';
 
-const Movies = ({ movies, searchValue, setSearchValue, onSearch }) => {
+const Movies = ({
+  movies,
+  onUpdateCard,
+  isToggle,
+  setIsToggle,
+  searchValue,
+  setSearchValue,
+  onSearch,
+  onSave,
+  savedMovies,
+  savedMoviesIds,
+  onDelete,
+  filteredMovies,
+  isLoading }) => {
   const [isShortMovies, setIsShortMovies] = useLocalStorage('isShortMovies', false);
-const [searchValueShort, setSearchValueShort] = useState({});
-const [savedLocalMovies, setSavedLocalMovies] = useLocalStorage('filteredMovies', []);
 
-  const filteredMovies = isShortMovies
+  filteredMovies = isShortMovies
     ? movies.filter(
-        (movie) =>
-          movie.duration <= DURATION_SHORT_MOVIE &&
-          movie.nameRU.toLowerCase().includes(searchValue.toLowerCase())
-      )
-    : movies.filter((movie) =>
+      (movie) =>
+        movie.duration <= DURATION_SHORT_MOVIE &&
         movie.nameRU.toLowerCase().includes(searchValue.toLowerCase())
-      );
-
-  const moviesToRender = isShortMovies ? savedLocalMovies : filteredMovies;
-
-  /* const handleShortMoviesChange = (value) => {
-    setSearchValueShort(value);
-  }; */
-  const handleShortMoviesChange = (e) => {
-    setIsShortMovies(e.target.checked);
-    localStorage.setItem('isShortMovies', e.target.checked);
-  };
+    )
+    : movies.filter((movie) =>
+      movie.nameRU.toLowerCase().includes(searchValue.toLowerCase())
+    );
 
   return (
     <section className="movies">
       <SearchForm
         onSearch={onSearch}
-        onChange={handleShortMoviesChange}
         setIsShortMovies={setIsShortMovies}
         searchValue={searchValue}
         setSearchValue={setSearchValue}
+        isToggle={isToggle}
+        setIsToggle={setIsToggle}
       />
-      {searchValue ? (
+      {isLoading && (
+        <Preloader />
+      )}
+      {!isLoading && searchValue ? (
         <MoviesCardList
           filteredMovies={filteredMovies}
-          isSavedMovies={false}
+          isSavedMoviesPage={false}
           movies={movies}
           searchValue={searchValue}
-          searchValueShort={searchValueShort}
+          onSave={onSave}
+          savedMovies={savedMovies}
+          onDelete={onDelete}
+          savedMoviesIds={savedMoviesIds}
+          onUpdateCard={onUpdateCard}
+          isLoading={isLoading}
         />
       ) : (
-        <div>No search results</div>
+        <p className='movies__no-result'>Ничего не найдено. Введите ключевое слово для поиска</p>
       )}
       <Footer />
     </section>

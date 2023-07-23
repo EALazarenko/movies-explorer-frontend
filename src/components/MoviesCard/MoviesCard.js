@@ -1,11 +1,86 @@
 import './MoviesCard.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { convertMinToHours } from '../../utils/utils';
+import { url } from '../../utils/MoviesApi';
 
-const MoviesCard = ({ movie, isSavedMovies, isLiked }) => {
+const MoviesCard = ({ movie, isSavedMoviesPage, onSave, savedMovies, onDelete, }) => {
 
-  const { image, nameRU, duration } = movie;
-  const [addSaved, setAddSaved] = useState(false);
+  const { _id,
+    id,
+    country,
+    director,
+    duration,
+    year,
+    description,
+    image,
+    trailerLink,
+    liked,
+    nameRU,
+    nameEN } = movie;
+
+  const baseUrl = `${url.protocol}//${url.hostname}`;
+  const [isLiked, setIsLiked] = useState(liked ? true : false);
+  const [isId, setIsId] = useState(null);
+  const linkImage =
+    typeof movie.image === 'string' ? movie.image : baseUrl + image.url;
+  const thumbnail = movie.thumbnail
+    ? movie.thumbnail
+    : baseUrl + image?.formats?.thumbnail?.url;
+
+
+  const handleClickLikeButton = () => {
+    if (isSavedMoviesPage) {
+      onDelete(isId);
+      setIsLiked(false);
+    } else {
+      if (isLiked) {
+        onDelete(isId);
+        setIsLiked(false);
+        localStorage.removeItem(movie.id);
+      } else {
+        onSave(
+          {
+            country,
+            director,
+            duration,
+            year,
+            description,
+            trailerLink,
+            nameRU,
+            nameEN,
+            thumbnail,
+            movieId: id,
+            image: linkImage
+          },
+          setIsLiked(true)
+        );
+
+        localStorage.setItem(id, JSON.stringify(movie));
+      }
+    }
+  };
+
+  // если что-то пойдет не так: вернуть
+  /* useEffect(() => {
+    const savedMovie = savedMovies.find(item => item.movieId === id);
+    setIsLiked(Boolean(savedMovie));
+    setIsId(savedMovie ? savedMovie._id : null);
+  }, [savedMovies, id]); */
+
+  useEffect(() => {
+    if (!isSavedMoviesPage) {
+      const savedMovie = JSON.parse(localStorage.getItem(id));
+      const likedFilm = savedMovies.length
+        ? savedMovies.find((savedMovie) => savedMovie?.movieId === id)
+        : false;
+      if (savedMovie) {
+        setIsLiked(true);
+        setIsId(likedFilm?._id);
+      } else {
+        setIsLiked(false)
+      }
+    }
+  }, [id, savedMovies, isSavedMoviesPage]);
 
   return (
     <li className='card'>
@@ -14,28 +89,25 @@ const MoviesCard = ({ movie, isSavedMovies, isLiked }) => {
           <h4 className='card__title'>{nameRU}</h4>
           <p className='card__duration'>{convertMinToHours(duration)}</p>
         </div>
-        {isSavedMovies &&
+        {isSavedMoviesPage &&
           <button
             className='card__button-delete'
             type='button'
-            title='Удалить из избранного' >
+            title='Удалить из избранного'
+            onClick={() => onDelete(isId || _id)} >
           </button>}
-        {!isSavedMovies &&
+        {!isSavedMoviesPage &&
           <button
-            className={`card__button ${addSaved && 'card__button-save'}`}
+            className={`card__button ${isLiked ? 'card__button-save' : ''}`}
             type='button'
             title={`${isLiked ? 'Удалить из избранного' : 'Добавить в избранное'}`}
-            checked={addSaved}
-            onClick={() => setAddSaved(!addSaved)} >
+            checked={isLiked}
+            onClick={handleClickLikeButton} >
           </button>
         }
       </div>
       <a href={movie.trailerLink} className="card__link" target="_blank" rel="noreferrer">
-        <img
-          src={isSavedMovies ?
-            image :
-            `https://api.nomoreparties.co/${image.url}`
-          }
+        <img src={linkImage}
           alt={`Обложка фильма: ${nameRU}`}
           className='card__image'
         />

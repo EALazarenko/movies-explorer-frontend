@@ -1,25 +1,18 @@
-import React, { useCallback, useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import './Login.css';
 import Logo from '../Logo/Logo';
+import { useFormValidation } from "../../hooks/useFormValidation";
 
 const Login = ({ onLogin }) => {
-  const [userData, setUserData] = useState({
-    email: '',
-    password: ''
-  })
+  const { values, handleChange, errors, isValid } = useFormValidation();
 
-  const handleChange = useCallback((e) => {
-    const { name, value } = e.target;
-    setUserData({
-      ...userData,
-      [name]: value
-    })
-  }, [userData]);
-
-  const handleSubmit = (e) => {
+  function handleSubmit(e) {
     e.preventDefault();
-    onLogin(userData);
+    if (!isValid) {
+      console.log(errors);
+    }
+    onLogin(values.email, values.password);
   }
 
   return (
@@ -39,12 +32,12 @@ const Login = ({ onLogin }) => {
             required={true}
             minLength={5}
             maxLength={30}
-            /* defaultValue='pochta@yandex.ru' */
-            value={userData.email || ''}
+            value={values.email || ''}
             autoFocus={true}
             onChange={handleChange}
+            pattern='^[\w\-\.]+@([\w\-]+\.)+[\w\-]{2,4}$'
           />
-          <span className='login__span-error'></span>
+          <span className='login__span-error'>{errors.email}</span>
         </label>
         <label className='login__value'>
           Пароль
@@ -56,13 +49,16 @@ const Login = ({ onLogin }) => {
             required={true}
             minLength={5}
             maxLength={30}
-            value={userData.password || ''}
+            value={values.password || ''}
             onChange={handleChange}
           />
-          <span className='login__span-error'></span>
+          <span className='login__span-error'>{errors.password}</span>
         </label>
 
-        <button type="submit" className="login__button">Войти</button>
+        <button type="submit"
+          className="login__button"
+          disabled={!isValid}
+        >Войти</button>
         <p className="login__link-login">
           Ещё не зарегистрированы?
           <Link to="/signup" className="login__button-login">Регистрация</Link>

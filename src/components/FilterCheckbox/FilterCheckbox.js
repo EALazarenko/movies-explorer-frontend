@@ -1,10 +1,6 @@
 import './FilterCheckbox.css';
-import { useState } from 'react';
-import { useLocalStorage } from '../../hooks/useLocalStorage';
 
-const FilterCheckbox = ({ setIsShortMovies }) => {
-  /* const [isToggle, setIsToggle] = useState(false); */
-  const [isToggle, setIsToggle] = useLocalStorage('isToggle', false);
+const FilterCheckbox = ({ setIsShortMovies, isToggle, setIsToggle }) => {
 
   const handleToggle = () => {
     setIsToggle(!isToggle);

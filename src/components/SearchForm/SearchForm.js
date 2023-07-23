@@ -1,24 +1,18 @@
 import './SearchForm.css';
-import { useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
-import React, { useState } from 'react';
 import findIcon from '../../images/find.png';
 import FilterCheckbox from '../FilterCheckbox/FilterCheckbox';
-import { useFormValidation } from '../../hooks/useFormValidation';
-import { useLocalStorage } from '../../hooks/useLocalStorage';
-
 const SearchForm = ({
   onSearch,
-  handleShortMoviesChange,
   setIsShortMovies,
+  setIsToggle,
+  isToggle,
   setSearchValue,
   searchValue
 }) => {
-  const [searchQuery, setSearchQuery] = useLocalStorage('searchQuery', '');
 
   const handleSearch = (event) => {
     event.preventDefault();
-    onSearch(searchQuery);
+    onSearch(searchValue);
   };
 
 
@@ -32,14 +26,17 @@ const SearchForm = ({
           name='movie-search'
           placeholder='Фильм'
           required={true}
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          value={searchValue}
+          onChange={(e) => setSearchValue(e.target.value)}
         />
-        <button className="search__submit" type='submit' /* disabled={!isValid} */>
+        <button className="search__submit" type='submit' disabled={!searchValue}>
           <img src={findIcon} alt='Найти' />
         </button>
       </form>
-      <FilterCheckbox onChange={handleShortMoviesChange} setIsShortMovies={setIsShortMovies} />
+      <FilterCheckbox
+        setIsShortMovies={setIsShortMovies}
+        setIsToggle={setIsToggle}
+        isToggle={isToggle} />
     </section>
   )
 }

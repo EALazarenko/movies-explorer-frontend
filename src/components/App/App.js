@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import './App.css';
 import Main from '../Main/Main';
@@ -14,22 +14,15 @@ import {
   authorize,
   checkToken,
   register,
-  editUserInfo
+  editUserInfo,
+  createMovie,
+  getDeleteMovie,
+  getSavedMovie
 } from '../../utils/MainApi';
 import { CurrentUserContext } from '../../contexts/CurrentUserContext';
 import { getMovies } from '../../utils/MoviesApi';
-import { useFormValidation } from '../../hooks/useFormValidation';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
-import {
-  DURATION_SHORT_MOVIE,
-  BIG_SCREEN_MOVIES,
-  MIDDLE_SCREEN_MOVIES,
-  SMALL_SCREEN_MOVIES,
-  MORE_MOVIES_BIG_SCREEN,
-  MORE_MOVIES_SMALL_SCREEN,
-  BIG_SCREEN,
-  SMALL_SCREEN
-} from '../../utils/constant';
+import ProtectedRoute from '../ProtectedRoute/ProtectedRoute';
 
 function App() {
   const location = useLocation();
@@ -41,223 +34,195 @@ function App() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  const {
-    values,
-    setValues,
-    setIsValid,
-    handleChange,
-    errors,
-    isValid,
-    resetForm,
-  } = useFormValidation();
-
-
   const [movies, setMovies] = useState([]);
   const [searchValue, setSearchValue] = useLocalStorage('searchValue', '');
-  const [searchValueShort, setSearchValueShort] = useState({});
   const [isToggle, setIsToggle] = useLocalStorage('isToggle', false);
-  const [filteredShortMovies, setFilteredShortMovies] = useState([]);
-  const [filteredMovies, setFilteredMovies] = useLocalStorage('filteredMovies', []);
 
-  const getAllMovies = async () => {
+  const [savedMovies, setSavedMovies] = useState([]);
+  const [savedMoviesIds, setSavedMoviesIds] = useState([]);
+  const currentUrl = location.pathname;
+
+
+  const searchMovies = async (searchValue) => {
     try {
-      const data = await getMovies();
+      setSearchValue(searchValue);
+      const data = await getMovies(searchValue);
       setMovies(data);
-      localStorage.setItem('allMovies', JSON.stringify(data));
-      localStorage.setItem('filteredMovies', JSON.stringify(data)); // сохранение filteredMovies в локальное хранилище
     } catch (error) {
       console.log(error);
     }
-  }
-
-  useEffect(() => {
-    getAllMovies();
-  }, []);
-
-  const searchMovies = async (searchQuery) => {
-    try {
-      setSearchValue(searchQuery);
-      const data = await getMovies(searchQuery);
-      setMovies(data);
-      setSearchValueShort(setIsToggle);
-
-      // Фильтрация фильмов по короткометражкам
-      const filteredData = data.filter((movie) => movie.duration <= 40);
-      setFilteredMovies(filteredData);
-
-      localStorage.setItem('searchResults', JSON.stringify(data));
-      localStorage.setItem('filteredMovies', JSON.stringify(filteredData)); // сохранение отфильтрованных фильмов в локальное хранилище
-    } catch (error) {
-      console.log(error);
-    }
-};
-
-useEffect(() => {
-  const storedFilteredMovies = JSON.parse(localStorage.getItem('filteredMovies'));
-  if (storedFilteredMovies) {
-    setFilteredMovies(storedFilteredMovies);
-  }
-}, []);
-
-useEffect(() => {
-  if (searchValue) {
-    localStorage.setItem('lastSearchQuery', searchValue);
-  }
-}, [searchValue]);
-
-useEffect(() => {
-  const storedLastSearchQuery = localStorage.getItem('lastSearchQuery');
-  if (storedLastSearchQuery) {
-    setSearchValue(storedLastSearchQuery);
-  }
-}, []);
-  /* const handleShortMoviesChange = (value) => {
-    setIsShortMovies(value);
   };
 
-  const filteredShortMovies = isShortMovies ? movies.filter(movie => movie.duration <= DURATION_SHORT_MOVIE) : movies; */
-
-  /* const [searchResults, setSearchResults] = useState([]); */
-
-  /* useEffect(() => {
-    const savedResults = localStorage.getItem('searchResults');
-    if (savedResults) {
-      setSearchResults(JSON.parse(savedResults));
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('searchResults', JSON.stringify(searchResults));
-  }, [searchResults]); */
-
-  const cbAuthenticate = useCallback(data => {
-    if (!data) {
-      throw new Error('Ошибка аутентификации');
-    }
-    if (data) {
-      localStorage.setItem('token', data.token);
-      setLoggedIn(true);
-      navigate('/movies', { replace: true });
-    }
-  }, []);
-
-  const cbLogin = useCallback(async ({ email, password }) => {
+  const handleSaveMovie = async (movie, setIsLiked) => {
+    const jwt = localStorage.getItem('jwt');
+    const isLiked = savedMovies.some(item => item.movieId === movie.id);
+    const getSavedMovie = () => savedMovies.find(item => item.movieId === movie.id);
     try {
-      const data = await
-        authorize(email, password);
-      cbAuthenticate(data);
+      if (isLiked) {
+        getDeleteMovie(getSavedMovie()._id)
+        .then(() => {
+          setSavedMovies(savedMovies.filter(item => item.movieId !== movie.id));
+          setSavedMoviesIds(savedMoviesIds.filter(item => item.movieId !== movie.id));
+        })
+      } else {
+      const savedMovie = await createMovie(movie, jwt);
+      setSavedMovies([...savedMovies, savedMovie]);
+      setSavedMoviesIds([...savedMoviesIds, savedMovie.movieId]);
+      setIsLiked(true);
+    }} catch (err) {
+      console.log(err);
     }
-    catch (err) {
-      console.log(`Ошибка: ${err}`);
-    }
-    finally {
-      setIsLoading(false);
-    }
-  }, []);
+  };
 
-  function cbRegister(name, email, password) {
-    setIsLoading(true)
-    register(name, email, password)
-      .then((res) => {
-        if (res.error) {
-          throw new Error(res.error);
-        }
-        navigate('/signin', { replace: true }); // куда отправлять?? в пачке про это было?
-        setIsLoading(false);
+  const handleDeleteMovie = async (movieId, setIsLiked) => {
+    const jwt = localStorage.getItem('jwt');
+    try {
+      await getDeleteMovie(movieId, jwt);
+      setSavedMovies(savedMovies.filter(movie => movie._id !== movieId));
+      setSavedMoviesIds(savedMoviesIds.filter(id => id !== movieId));
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const handleRegistration = async (name, email, password) => {
+    return register(name, email, password)
+      .then(() => {
+        handleAuthorization(email, password);
       })
       .catch((err) => {
         console.log(err);
       })
-      .finally(() => setIsLoading(false))
-  }
-
-  const cbLogout = () => {
-    setLoggedIn(false);
-    localStorage.removeItem('token');
-    navigate('/', { replace: true });
-  }
-
-  /*  useEffect(() => {
-     if (loggedIn) {
-       Promise.all([api.getUserInfo(), api.getInitialCards()])
-         .then(([{ name, about, avatar, _id }, cards]) => {
-           setCurrentUser({ name, about, avatar, _id });
-           setCards(cards);
-         })
-         .catch((error) => {
-           console.error(error);
-         })
-         .finally(() => setLoading(false));
-     }
-   }, [loggedIn]); */
+  };
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if (token && !loggedIn) {
-      setIsLoading(true)
-      checkToken(token)
-        .then((data) => {
-          setLoggedIn(true);
-          navigate('/', { replace: true });
-
-        })
-        .catch((err) => {
-          console.log(`Ошибка: ${err}`);
-        })
-        .finally(() => setIsLoading(false))
-    } else {
-      setIsLoading(false);
+    if (token) {
+      setLoggedIn(true);
     }
-  }, [loggedIn]);
+  }, []);
 
   useEffect(() => {
     if (loggedIn) {
-      navigate('/', { replace: true });
+      setIsLoading(true);
+      Promise.all([getMovies(), getSavedMovie()])
+        .then(([moviesData, savedMoviesData]) => {
+          setMovies(moviesData);
+          setSavedMovies(savedMoviesData);
+          setSavedMoviesIds(savedMoviesData.map((movie) => movie.movieId));
+          localStorage.setItem('moviesData', JSON.stringify(moviesData));
+        })
+        .catch((err) => {
+          console.log(err);
+        })
+        .finally(() => setIsLoading(false));
     }
   }, [loggedIn]);
 
-  // edit profile
-  function handleUpdateUser({ name, email }) {
-    editUserInfo(name, email)
-      .then(({ data }) => {
+  const handleAuthorization = async (email, password) => {
+    return authorize(email, password)
+      .then((data) => {
+        localStorage.setItem('token', data.token);
+        setLoggedIn(true);
         setCurrentUser(data);
+        navigate('/movies', { replace: true });
       })
       .catch((err) => {
-        console.log(`Ошибка: ${err}`);
-      })
+        console.log(err);
+      });
+  };
+
+const cbLogout = () => {
+  localStorage.clear();
+  setCurrentUser({});
+  setLoggedIn(false);
+  localStorage.removeItem('token');
+  setSavedMovies([]);
+  navigate('/', { replace: true });
+}
+
+ useEffect(() => {
+   const token = localStorage.getItem('token');
+   if (token && !loggedIn) {
+     setIsLoading(true)
+     checkToken(token)
+       .then((data) => {
+         setLoggedIn(true);
+         setCurrentUser(data);
+         navigate(currentUrl, { replace: true });
+
+       })
+       .catch((err) => {
+         console.log(`Ошибка: ${err}`);
+       })
+       .finally(() => setIsLoading(false))
+   } else {
+     setIsLoading(false);
+   }
+ }, [currentUrl, loggedIn, navigate, setCurrentUser]);
+
+ useEffect(() => {
+  if (loggedIn) {
+    navigate('/movies', { replace: true });
   }
+}, [loggedIn]);
 
+function handleUpdateUser(name, email) {
+  editUserInfo(name, email)
+    .then(({ data }) => {
+      setCurrentUser(data);
+    })
+    .catch((err) => {
+      console.log(`Ошибка: ${err}`);
+    })
+}
 
+if (isLoading) return <Preloader />;
 
-  if (isLoading) return <Preloader />;
-
-  return (
-    <CurrentUserContext.Provider value={currentUser}>
-      <div className="page">
-        {showHeader && <Header loggedIn={loggedIn} />}
-        <Routes>
-          <Route path="/" element={<Main />} />
-          <Route path="/signin" element={<Login isLoggedId={loggedIn} onLogin={cbLogin} />}></Route>
-          <Route path="/signup" element={<Register isLoggedId={loggedIn} onRegister={cbRegister} />}></Route>
-          {/* <Route path="/signout" element={<SignOut />} /> */}
-          <Route path="/movies"
-            element={<Movies
-              filteredMovies={filteredMovies}
-              isLoggedId={loggedIn}
+return (
+  <CurrentUserContext.Provider value={currentUser}>
+    <div className="page">
+      {showHeader && <Header loggedIn={loggedIn} />}
+      <Routes>
+        <Route path="/" element={<Main loggedIn={loggedIn} />} />
+        <Route path="/signin" element={<Login loggedIn={loggedIn} onLogin={handleAuthorization} />}></Route>
+        <Route path="/signup" element={<Register loggedIn={loggedIn} onRegister={handleRegistration} />}></Route>
+        <Route path="/movies" element={
+          <ProtectedRoute
+            element={Movies}
+              loggedIn={loggedIn}
               movies={movies}
-        searchValue={searchValue}
-        setSearchValue={setSearchValue}
-        searchValueShort={searchValueShort}
-        onSearch={searchMovies}
-        isToggle={isToggle}
-         />} />
-          <Route path="/saved-movies" element={<SavedMovies isLoggedId={loggedIn} />} />
-          <Route path="/profile" element={<Profile isLoggedId={loggedIn} onLogout={cbLogout} onUpdateUser={handleUpdateUser} />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </div>
-    </CurrentUserContext.Provider>
-  );
+              searchValue={searchValue}
+              setSearchValue={setSearchValue}
+              onSearch={searchMovies}
+              isToggle={isToggle}
+              setIsToggle={setIsToggle}
+              onDelete={handleDeleteMovie}
+              onSave={handleSaveMovie}
+              savedMovies={savedMovies}
+              savedMoviesIds={savedMoviesIds}
+              isLoading={isLoading}
+             />} />
+        <Route path="/saved-movies" element={
+          <ProtectedRoute
+            element={SavedMovies}
+              loggedIn={loggedIn}
+              onDelete={handleDeleteMovie}
+              movies={savedMovies}
+              savedMoviesIds={savedMoviesIds}
+              searchValue={searchValue}
+              setSearchValue={setSearchValue}
+              onSearch={searchMovies}
+              isToggle={isToggle}
+              setIsToggle={setIsToggle}
+             />} />
+        <Route path="/profile" element={
+          <ProtectedRoute element={Profile} loggedIn={loggedIn} onLogout={cbLogout} onUpdateUser={handleUpdateUser}  />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </div>
+  </CurrentUserContext.Provider>
+);
 }
 
 export default App;

@@ -1,73 +1,76 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import './Profile.css';
 import { CurrentUserContext } from '../../contexts/CurrentUserContext';
+import { useFormValidation } from "../../hooks/useFormValidation";
 
 const Profile = ({ onLogout, onUpdateUser }) => {
   const currentUser = useContext(CurrentUserContext);
-  const [isName, setIsName] = useState('');
-  const [isEmail, setIsEmail] = useState('');
+  const { values, handleChange, errors, isValid, resetForm } = useFormValidation();
 
-  function handleSubmit(e) {
-    e.preventDefault();
-    onUpdateUser({
-      name: isName,
-      email: isEmail,
-    });
-  }
+  const handleSubmit = (event) => {
+    event.preventDefault();
+
+    if (!isValid) {
+      return;
+    } else {
+      onUpdateUser({
+        name: values.name,
+        email: values.email,
+      });
+    }
+  };
 
   useEffect(() => {
-    setIsName(currentUser.name);
-    setIsEmail(currentUser.email);
-  }, [currentUser]);
+    currentUser ? resetForm(currentUser) : resetForm();
+  }, [currentUser, resetForm]);
 
-  function handleChangeName(e) {
-    setIsName(e.target.value)
-  }
-
-  function handleChangeEmail(e) {
-    setIsEmail(e.target.value)
-  }
+  const isValueNoChange = (!isValid || (currentUser.name === values.name && currentUser.email === values.email));
 
   return (
     <section className='profile'>
-      <h2 className='profile__title'>Привет, {isName}!</h2>
-      <form className='profile__form'>
+      <h2 className='profile__title'>Привет, {currentUser.name}!</h2>
+      <form className='profile__form' onSubmit={handleSubmit}>
         <label className='profile__value'>
           Имя
           <input
             className='profile__input'
             type='text'
-            name='profile-name'
+            name='name'
             id='profile-name'
             placeholder='Имя'
             required={true}
             minLength={2}
             maxLength={30}
-            defaultValue={isName}
-            onChange={handleChangeName}
+            value={values.name || ''}
+            onChange={handleChange}
+            pattern="[A-Za-zА-Яа-яЁё\- ]+"
           />
+          <span id='profile-error' className='profile__error'>{errors.name}</span>
         </label>
         <label className="profile__value">
           E-mail
           <input
             className='profile__input'
             type='email'
-            name='profile-email'
+            name='email'
             id='profile-email'
             placeholder='E-mail'
             required={true}
             minLength={5}
             maxLength={30}
-            defaultValue={isEmail}
-            onChange={handleChangeEmail}
+            value={values.email || ''}
+            onChange={handleChange}
+            pattern='^[\w\-\.]+@([\w\-]+\.)+[\w\-]{2,4}$'
           />
+          <span id='profile-error' className='profile__error'>{errors.email}</span>
         </label>
         <div className='profile__button'>
           <button
             className='profile__edit'
             type='submit'
             title='Редактировать'
-            onSubmit={handleSubmit}>
+            disabled={isValueNoChange}
+          >
             Редактировать
           </button>
           <button
