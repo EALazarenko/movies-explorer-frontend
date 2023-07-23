@@ -19,9 +19,7 @@ const MoviesCardList = ({
   onSave,
   savedMovies,
   onDelete,
-  savedMoviesIds,
-  onUpdateCard,
-  isLoading }) => {
+  isLoading, }) => {
 
   const [showMovieList, setShowMovieList] = useState(filteredMovies);
   const screenWidth = useScreenWidth();
@@ -61,8 +59,6 @@ const MoviesCardList = ({
             onSave={onSave}
             savedMovies={savedMovies}
             onDelete={onDelete}
-            savedMoviesIds={savedMoviesIds}
-            onUpdateCard={onUpdateCard}
           />
         )) :
           filteredMovies.map((movie, movieId) => (
@@ -71,7 +67,7 @@ const MoviesCardList = ({
               key={movieId}
               isSavedMoviesPage={isSavedMoviesPage}
               onDelete={onDelete}
-              onUpdateCard={onUpdateCard}
+              savedMovies={savedMovies}
             />
           ))}
       </ul>

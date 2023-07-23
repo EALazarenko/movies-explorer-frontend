@@ -9,12 +9,12 @@ const SavedMovies = ({
   movies,
   filteredMovies,
   onDelete,
-  onUpdateCard,
   searchValue,
   setSearchValue,
   isToggle,
   setIsToggle,
-  onSearch
+  onSearch,
+  savedMovies
 }) => {
   const [isShortMovies, setIsShortMovies] = useLocalStorage('isShortMovies', false);
 
@@ -43,7 +43,7 @@ const SavedMovies = ({
         filteredMovies={filteredMovies}
         movies={movies}
         onDelete={onDelete}
-        onUpdateCard={onUpdateCard} />
+        savedMovies={savedMovies} />
       <Footer />
 
     </section>

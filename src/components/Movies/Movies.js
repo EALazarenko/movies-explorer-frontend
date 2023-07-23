@@ -8,7 +8,6 @@ import Preloader from '../Preloader/Preloader';
 
 const Movies = ({
   movies,
-  onUpdateCard,
   isToggle,
   setIsToggle,
   searchValue,
@@ -16,7 +15,6 @@ const Movies = ({
   onSearch,
   onSave,
   savedMovies,
-  savedMoviesIds,
   onDelete,
   filteredMovies,
   isLoading }) => {
@@ -54,8 +52,6 @@ const Movies = ({
           onSave={onSave}
           savedMovies={savedMovies}
           onDelete={onDelete}
-          savedMoviesIds={savedMoviesIds}
-          onUpdateCard={onUpdateCard}
           isLoading={isLoading}
         />
       ) : (

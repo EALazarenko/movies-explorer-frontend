@@ -14,12 +14,11 @@ const MoviesCard = ({ movie, isSavedMoviesPage, onSave, savedMovies, onDelete, }
     description,
     image,
     trailerLink,
-    liked,
     nameRU,
     nameEN } = movie;
 
   const baseUrl = `${url.protocol}//${url.hostname}`;
-  const [isLiked, setIsLiked] = useState(liked ? true : false);
+  const [isLiked, setIsLiked] = useState(false);
   const [isId, setIsId] = useState(null);
   const linkImage =
     typeof movie.image === 'string' ? movie.image : baseUrl + image.url;
@@ -31,7 +30,7 @@ const MoviesCard = ({ movie, isSavedMoviesPage, onSave, savedMovies, onDelete, }
   const handleClickLikeButton = () => {
     if (isSavedMoviesPage) {
       onDelete(isId);
-      setIsLiked(false);
+      /* setIsLiked(false); */
     } else {
       if (isLiked) {
         onDelete(isId);
@@ -60,13 +59,6 @@ const MoviesCard = ({ movie, isSavedMoviesPage, onSave, savedMovies, onDelete, }
     }
   };
 
-  // если что-то пойдет не так: вернуть
-  /* useEffect(() => {
-    const savedMovie = savedMovies.find(item => item.movieId === id);
-    setIsLiked(Boolean(savedMovie));
-    setIsId(savedMovie ? savedMovie._id : null);
-  }, [savedMovies, id]); */
-
   useEffect(() => {
     if (!isSavedMoviesPage) {
       const savedMovie = JSON.parse(localStorage.getItem(id));
@@ -74,7 +66,7 @@ const MoviesCard = ({ movie, isSavedMoviesPage, onSave, savedMovies, onDelete, }
         ? savedMovies.find((savedMovie) => savedMovie?.movieId === id)
         : false;
       if (savedMovie) {
-        setIsLiked(true);
+        setIsLiked(!!likedFilm);
         setIsId(likedFilm?._id);
       } else {
         setIsLiked(false)
