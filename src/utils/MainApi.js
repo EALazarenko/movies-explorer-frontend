@@ -39,6 +39,17 @@ export const authorize = (email, password) => {
     .then(checkResponse)
 };
 
+export const getUserInfo = () => {
+  const token = localStorage.getItem('token');
+  return fetch(`${BASE_URL}/users/me`, {
+    method: 'GET',
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
+    },
+  }).then(checkResponse);
+};
+
 export const editUserInfo = ({ email, name }) => { // фигурные или простые?
   const token = localStorage.getItem('token');
   return fetch(`${BASE_URL}/users/me`, {

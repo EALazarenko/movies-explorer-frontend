@@ -24,10 +24,10 @@ const Movies = ({
     ? movies.filter(
       (movie) =>
         movie.duration <= DURATION_SHORT_MOVIE &&
-        movie.nameRU.toLowerCase().includes(searchValue.toLowerCase())
+        movie.nameRU.toLowerCase().includes(searchValue.toLowerCase()),
     )
     : movies.filter((movie) =>
-      movie.nameRU.toLowerCase().includes(searchValue.toLowerCase())
+      movie.nameRU.toLowerCase().includes(searchValue.toLowerCase()),
     );
 
   return (
@@ -39,11 +39,12 @@ const Movies = ({
         setSearchValue={setSearchValue}
         isToggle={isToggle}
         setIsToggle={setIsToggle}
+        isSavedMoviesPage={false}
       />
       {isLoading && (
         <Preloader />
       )}
-      {!isLoading && searchValue ? (
+      {!isLoading && searchValue && filteredMovies.length > 0 ? (
         <MoviesCardList
           filteredMovies={filteredMovies}
           isSavedMoviesPage={false}

@@ -1,11 +1,26 @@
 import './FilterCheckbox.css';
+import { useEffect } from "react";
 
-const FilterCheckbox = ({ setIsShortMovies, isToggle, setIsToggle }) => {
+const FilterCheckbox = ({ setIsShortMovies, isToggle, setIsToggle, isSavedMoviesPage }) => {
+
+  const path = window.location.pathname;
 
   const handleToggle = () => {
     setIsToggle(!isToggle);
     setIsShortMovies(!isToggle);
+    if (!isSavedMoviesPage) {
+      localStorage.setItem('isToggle', JSON.stringify(!isToggle));
+    }
   };
+
+  useEffect(() => {
+    if (path === "/movies") {
+      const toggleValue = localStorage.getItem('isToggle');
+      setIsToggle(toggleValue ? JSON.parse(toggleValue) : false);
+    } else {
+      setIsToggle(false)
+    }
+  }, [path]);
 
   return (
     <div className='filter'>

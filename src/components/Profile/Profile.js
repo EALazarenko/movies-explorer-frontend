@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import './Profile.css';
 import { CurrentUserContext } from '../../contexts/CurrentUserContext';
 import { useFormValidation } from "../../hooks/useFormValidation";
@@ -6,6 +6,7 @@ import { useFormValidation } from "../../hooks/useFormValidation";
 const Profile = ({ onLogout, onUpdateUser }) => {
   const currentUser = useContext(CurrentUserContext);
   const { values, handleChange, errors, isValid, resetForm } = useFormValidation();
+  const [isSaved, setIsSaved] = useState(false);
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -16,7 +17,8 @@ const Profile = ({ onLogout, onUpdateUser }) => {
       onUpdateUser({
         name: values.name,
         email: values.email,
-      });
+      })
+      setIsSaved(true);
     }
   };
 
@@ -42,7 +44,10 @@ const Profile = ({ onLogout, onUpdateUser }) => {
             minLength={2}
             maxLength={30}
             value={values.name || ''}
-            onChange={handleChange}
+            onChange={(event) => {
+              handleChange(event);
+              setIsSaved(false);
+            }}
             pattern="[A-Za-zА-Яа-яЁё\- ]+"
           />
           <span id='profile-error' className='profile__error'>{errors.name}</span>
@@ -59,7 +64,10 @@ const Profile = ({ onLogout, onUpdateUser }) => {
             minLength={5}
             maxLength={30}
             value={values.email || ''}
-            onChange={handleChange}
+            onChange={(event) => {
+              handleChange(event);
+              setIsSaved(false);
+            }}
             pattern='^[\w\-\.]+@([\w\-]+\.)+[\w\-]{2,4}$'
           />
           <span id='profile-error' className='profile__error'>{errors.email}</span>
@@ -69,9 +77,9 @@ const Profile = ({ onLogout, onUpdateUser }) => {
             className='profile__edit'
             type='submit'
             title='Редактировать'
-            disabled={isValueNoChange}
+            disabled={isValueNoChange || isSaved}
           >
-            Редактировать
+            {isSaved ? 'Сохранено' : 'Редактировать'}
           </button>
           <button
             className='profile__logout'

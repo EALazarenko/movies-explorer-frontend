@@ -3,7 +3,7 @@ import MoviesCardList from '../MoviesCardList/MoviesCardList';
 import SearchForm from '../SearchForm/SearchForm';
 import './SavedMovies.css';
 import { DURATION_SHORT_MOVIE } from '../../utils/constant';
-import { useLocalStorage } from '../../hooks/useLocalStorage';
+import { useState } from 'react';
 
 const SavedMovies = ({
   movies,
@@ -16,7 +16,7 @@ const SavedMovies = ({
   onSearch,
   savedMovies
 }) => {
-  const [isShortMovies, setIsShortMovies] = useLocalStorage('isShortMovies', false);
+  const [isShortMovies, setIsShortMovies] = useState(false);
 
   filteredMovies = isShortMovies
     ? movies.filter(
@@ -31,6 +31,7 @@ const SavedMovies = ({
   return (
     <section className='saved-movies'>
       <SearchForm
+        isSavedMoviesPage={true}
         setIsShortMovies={setIsShortMovies}
         isShortMovies={isShortMovies}
         searchValue={searchValue}

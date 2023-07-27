@@ -1,20 +1,37 @@
+import { useEffect } from "react";
 import './SearchForm.css';
 import findIcon from '../../images/find.png';
 import FilterCheckbox from '../FilterCheckbox/FilterCheckbox';
+
 const SearchForm = ({
   onSearch,
   setIsShortMovies,
   setIsToggle,
   isToggle,
   setSearchValue,
-  searchValue
+  searchValue,
+  isSavedMoviesPage
 }) => {
+
+  const path = window.location.pathname;
 
   const handleSearch = (event) => {
     event.preventDefault();
     onSearch(searchValue);
-  };
+    if (!isSavedMoviesPage) {
+      localStorage.setItem('searchValue', searchValue);
+    }
+  }
 
+  useEffect(() => {
+    if (path === "/movies") {
+
+      const localQuery = localStorage.getItem("searchValue");
+      setSearchValue(localQuery ?? "");
+    } else {
+      setSearchValue('')
+    }
+  }, [path]);
 
   return (
     <section className="search" >
@@ -36,7 +53,8 @@ const SearchForm = ({
       <FilterCheckbox
         setIsShortMovies={setIsShortMovies}
         setIsToggle={setIsToggle}
-        isToggle={isToggle} />
+        isToggle={isToggle}
+        isSavedMoviesPage={isSavedMoviesPage} />
     </section>
   )
 }

@@ -79,6 +79,11 @@
   opacity: .6;
 }
 
+.login__button:disabled {
+  background-color: #A0A0A0;
+  cursor: not-allowed;
+}
+
 .login__link-login {
   color: #8B8B8B;
   font-size: 14px;

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import './App.css';
 import Main from '../Main/Main';
@@ -17,11 +17,11 @@ import {
   editUserInfo,
   createMovie,
   getDeleteMovie,
-  getSavedMovie
+  getSavedMovie,
+  getUserInfo
 } from '../../utils/MainApi';
 import { CurrentUserContext } from '../../contexts/CurrentUserContext';
 import { getMovies } from '../../utils/MoviesApi';
-import { useLocalStorage } from '../../hooks/useLocalStorage';
 import ProtectedRoute from '../ProtectedRoute/ProtectedRoute';
 
 function App() {
@@ -35,14 +35,15 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
 
   const [movies, setMovies] = useState([]);
-  const [searchValue, setSearchValue] = useLocalStorage('searchValue', '');
-  const [isToggle, setIsToggle] = useLocalStorage('isToggle', false);
+  const [searchValue, setSearchValue] = useState('');
+  const [isToggle, setIsToggle] = useState(false);
 
   const [savedMovies, setSavedMovies] = useState([]);
   const currentUrl = location.pathname;
 
 
-  const searchMovies = async (searchValue) => {
+  const searchMovies = useCallback(async (searchValue) => {
+
     try {
       setSearchValue(searchValue);
       const data = await getMovies(searchValue);
@@ -50,7 +51,8 @@ function App() {
     } catch (error) {
       console.log(error);
     }
-  };
+  }, []);
+
 
   const handleSaveMovie = async (movie) => {
     const jwt = localStorage.getItem('jwt');
@@ -62,7 +64,7 @@ function App() {
     }
   };
 
-  const handleDeleteMovie = async (movieId, setIsLiked) => {
+  const handleDeleteMovie = async (movieId) => {
     const jwt = localStorage.getItem('jwt');
     try {
       await getDeleteMovie(movieId, jwt);
@@ -149,6 +151,22 @@ function App() {
 
   useEffect(() => {
     if (loggedIn) {
+      setIsLoading(true)
+      getUserInfo()
+        .then((data) => {
+          setCurrentUser(data);
+        })
+        .catch((err) => {
+          console.log(`Ошибка: ${err}`);
+        })
+        .finally(() => setIsLoading(false))
+    } else {
+      setIsLoading(false);
+    }
+  }, [loggedIn, setCurrentUser]);
+
+  useEffect(() => {
+    if (loggedIn) {
       navigate('/movies', { replace: true });
     }
   }, [loggedIn]);
@@ -186,7 +204,6 @@ function App() {
               onDelete={handleDeleteMovie}
               onSave={handleSaveMovie}
               savedMovies={savedMovies}
-              /* savedMoviesIds={savedMoviesIds} */
               isLoading={isLoading}
             />} />
           <Route path="/saved-movies" element={
@@ -195,7 +212,6 @@ function App() {
               loggedIn={loggedIn}
               onDelete={handleDeleteMovie}
               movies={savedMovies}
-              /* savedMoviesIds={savedMoviesIds} */
               searchValue={searchValue}
               setSearchValue={setSearchValue}
               onSearch={searchMovies}

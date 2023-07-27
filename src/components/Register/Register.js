@@ -70,7 +70,7 @@ const Register = ({ onRegister }) => {
           <span className='register__span-error'>{errors.password}</span>
         </label>
 
-        <button type="submit" className="register__button">Зарегистрироваться</button>
+        <button type="submit" className="register__button" disabled={!isValid}>Зарегистрироваться</button>
         <p className="register__link-login">
           Уже зарегистрированы?
           <Link to="/signin" className="register__button-login">Войти</Link>
