@@ -50,7 +50,7 @@ export const getUserInfo = () => {
   }).then(checkResponse);
 };
 
-export const editUserInfo = ({ email, name }) => { // фигурные или простые?
+export const editUserInfo = (name, email) => {
   const token = localStorage.getItem('token');
   return fetch(`${BASE_URL}/users/me`, {
     method: 'PATCH',
@@ -59,8 +59,8 @@ export const editUserInfo = ({ email, name }) => { // фигурные или п
       "Authorization": `Bearer ${token}`
     },
     body: JSON.stringify({
-      email,
-      name
+      name,
+      email
     })
   })
     .then(checkResponse)

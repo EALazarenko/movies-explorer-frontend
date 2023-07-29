@@ -39,16 +39,14 @@ const MoviesCard = ({ movie, isSavedMoviesPage, onSave, savedMovies, onDelete, }
       setIsLiked(!!likedFilm);
       setIsId(likedFilm?._id);
     }
-  }, [isSavedMoviesPage, movie, savedMovies]);
+  }, [isSavedMoviesPage, movie, savedMovies, setIsLiked]);
 
   const handleClickLikeButton = () => {
     if (isSavedMoviesPage) {
-      onDelete(isId);
+      onDelete(isId, setIsLiked);
     } else {
       if (isLiked) {
-        onDelete(isId);
-        setIsLiked(false);
-        localStorage.removeItem(movie.id);
+        onDelete(isId, setIsLiked);
       } else {
         onSave(
           {
@@ -64,10 +62,8 @@ const MoviesCard = ({ movie, isSavedMoviesPage, onSave, savedMovies, onDelete, }
             movieId: id,
             image: linkImage
           },
-          setIsLiked(true)
+          setIsLiked
         );
-
-        localStorage.setItem(id, JSON.stringify(movie));
       }
     }
   };

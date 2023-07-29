@@ -3,10 +3,14 @@ import './Profile.css';
 import { CurrentUserContext } from '../../contexts/CurrentUserContext';
 import { useFormValidation } from "../../hooks/useFormValidation";
 
-const Profile = ({ onLogout, onUpdateUser }) => {
+const Profile = ({ onLogout, onUpdateUser, buttonText, setButtonText }) => {
   const currentUser = useContext(CurrentUserContext);
   const { values, handleChange, errors, isValid, resetForm } = useFormValidation();
   const [isSaved, setIsSaved] = useState(false);
+
+  useEffect(() => {
+    currentUser ? resetForm(currentUser) : resetForm();
+  }, [currentUser, resetForm]);
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -14,19 +18,21 @@ const Profile = ({ onLogout, onUpdateUser }) => {
     if (!isValid) {
       return;
     } else {
-      onUpdateUser({
-        name: values.name,
-        email: values.email,
-      })
-      setIsSaved(true);
+      onUpdateUser(values.name, values.email, setIsSaved);
     }
   };
 
-  useEffect(() => {
-    currentUser ? resetForm(currentUser) : resetForm();
-  }, [currentUser, resetForm]);
+  const isValueNoChange = (!isValid || (currentUser.name === values.name && currentUser.email === values.email && isSaved));
 
-  const isValueNoChange = (!isValid || (currentUser.name === values.name && currentUser.email === values.email));
+  useEffect(() => {
+    let timeoutId;
+    if (buttonText === 'Сохранено') {
+      timeoutId = setTimeout(() => {
+        setButtonText('Редактировать');
+      }, 2000);
+    }
+    return () => clearTimeout(timeoutId);
+  }, [buttonText, setButtonText]);
 
   return (
     <section className='profile'>
@@ -76,10 +82,10 @@ const Profile = ({ onLogout, onUpdateUser }) => {
           <button
             className='profile__edit'
             type='submit'
-            title='Редактировать'
-            disabled={isValueNoChange || isSaved}
+            title={isValueNoChange ? 'Нужно изменить имя или email для редактирования' : 'Редактировать'}
+            disabled={isValueNoChange}
           >
-            {isSaved ? 'Сохранено' : 'Редактировать'}
+            {buttonText}
           </button>
           <button
             className='profile__logout'

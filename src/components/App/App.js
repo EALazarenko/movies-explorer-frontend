@@ -37,6 +37,7 @@ function App() {
   const [movies, setMovies] = useState([]);
   const [searchValue, setSearchValue] = useState('');
   const [isToggle, setIsToggle] = useState(false);
+  const [buttonText, setButtonText] = useState('Редактировать');
 
   const [savedMovies, setSavedMovies] = useState([]);
   const currentUrl = location.pathname;
@@ -54,25 +55,34 @@ function App() {
   }, []);
 
 
-  const handleSaveMovie = async (movie) => {
+  const handleSaveMovie = async (movie, setIsLiked) => {
     const jwt = localStorage.getItem('jwt');
     try {
       const savedMovie = await createMovie(movie, jwt);
-      setSavedMovies([...savedMovies, savedMovie]);
+      if (savedMovie) {
+        setSavedMovies([...savedMovies, savedMovie]);
+        setIsLiked(true);
+        localStorage.setItem(movie.id, JSON.stringify(movie));
+      }
+    } catch (err) {
+      console.log(err);
+      setIsLiked(false);
+    }
+
+  };
+
+  const handleDeleteMovie = async (movieId, movie, setIsLiked) => {
+    const jwt = localStorage.getItem('jwt');
+    try {
+      await getDeleteMovie(movieId, jwt);
+      setSavedMovies(savedMovies.filter(movie => movie._id !== movieId));
+      setIsLiked(false);
+      localStorage.removeItem(movie.id);
     } catch (err) {
       console.log(err);
     }
   };
 
-  const handleDeleteMovie = async (movieId) => {
-    const jwt = localStorage.getItem('jwt');
-    try {
-      await getDeleteMovie(movieId, jwt);
-      setSavedMovies(savedMovies.filter(movie => movie._id !== movieId));
-    } catch (err) {
-      console.log(err);
-    }
-  };
 
   const handleRegistration = async (name, email, password) => {
     return register(name, email, password)
@@ -171,10 +181,12 @@ function App() {
     }
   }, [loggedIn]);
 
-  function handleUpdateUser(name, email) {
-    editUserInfo(name, email)
+  function handleUpdateUser(name, email, setIsSaved) {
+    return editUserInfo(name, email)
       .then(({ data }) => {
         setCurrentUser(data);
+        setIsSaved(true);
+        setButtonText('Сохранено')
       })
       .catch((err) => {
         console.log(`Ошибка: ${err}`);
@@ -219,7 +231,13 @@ function App() {
               setIsToggle={setIsToggle}
             />} />
           <Route path="/profile" element={
-            <ProtectedRoute element={Profile} loggedIn={loggedIn} onLogout={cbLogout} onUpdateUser={handleUpdateUser} />} />
+            <ProtectedRoute
+              element={Profile}
+              loggedIn={loggedIn}
+              onLogout={cbLogout}
+              onUpdateUser={(name, email, setIsSaved) => handleUpdateUser(name, email, setIsSaved)}
+              buttonText={buttonText}
+              setButtonText={setButtonText} />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>

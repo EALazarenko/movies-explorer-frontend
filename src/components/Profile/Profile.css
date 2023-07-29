@@ -77,8 +77,13 @@
   cursor: pointer;
 }
 
-.profile__edit:hover {
+.profile__edit:not([disabled]):hover {
   opacity: .6;
+}
+
+.profile__edit:disabled {
+  color: #A0A0A0;
+  cursor: not-allowed;
 }
 
 .profile__logout {

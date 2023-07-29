@@ -14,7 +14,7 @@ const SavedMovies = ({
   isToggle,
   setIsToggle,
   onSearch,
-  savedMovies
+  savedMovies, isLiked, setIsLiked
 }) => {
   const [isShortMovies, setIsShortMovies] = useState(false);
 
@@ -39,12 +39,18 @@ const SavedMovies = ({
         isToggle={isToggle}
         setIsToggle={setIsToggle}
         onSearch={onSearch} />
-      <MoviesCardList
-        isSavedMoviesPage={true}
-        filteredMovies={filteredMovies}
-        movies={movies}
-        onDelete={onDelete}
-        savedMovies={savedMovies} />
+      {filteredMovies.length > 0 ? (
+        <MoviesCardList
+          isSavedMoviesPage={true}
+          filteredMovies={filteredMovies}
+          movies={movies}
+          onDelete={onDelete}
+          savedMovies={savedMovies}
+          isLiked={isLiked}
+          setIsLiked={setIsLiked}
+        />) : (
+        <p className='saved-movies__no-result'>Ничего не найдено. Введите ключевое слово для поиска</p>
+      )}
       <Footer />
 
     </section>

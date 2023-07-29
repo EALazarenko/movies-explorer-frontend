@@ -1,0 +1,9 @@
+.saved-movies__no-result {
+  margin: 0;
+  padding: 0;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 18px;
+  text-align: center;
+  color: #EE3465;
+}

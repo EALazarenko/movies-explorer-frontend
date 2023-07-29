@@ -17,7 +17,9 @@ const Movies = ({
   savedMovies,
   onDelete,
   filteredMovies,
-  isLoading }) => {
+  isLoading,
+  isLiked,
+  setIsLiked }) => {
   const [isShortMovies, setIsShortMovies] = useLocalStorage('isShortMovies', false);
 
   filteredMovies = isShortMovies
@@ -54,6 +56,8 @@ const Movies = ({
           savedMovies={savedMovies}
           onDelete={onDelete}
           isLoading={isLoading}
+          isLiked={isLiked}
+          setIsLiked={setIsLiked}
         />
       ) : (
         <p className='movies__no-result'>Ничего не найдено. Введите ключевое слово для поиска</p>
