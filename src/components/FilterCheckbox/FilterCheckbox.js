@@ -1,8 +1,26 @@
 import './FilterCheckbox.css';
-import { useState } from 'react';
+import { useEffect } from "react";
 
-const FilterCheckbox = () => {
-  const [isToggle, setIsToggle] = useState(true)
+const FilterCheckbox = ({ setIsShortMovies, isToggle, setIsToggle, isSavedMoviesPage }) => {
+
+  const path = window.location.pathname;
+
+  const handleToggle = () => {
+    setIsToggle(!isToggle);
+    setIsShortMovies(!isToggle);
+    if (!isSavedMoviesPage) {
+      localStorage.setItem('isToggle', JSON.stringify(!isToggle));
+    }
+  };
+
+  useEffect(() => {
+    if (path === "/movies") {
+      const toggleValue = localStorage.getItem('isToggle');
+      setIsToggle(toggleValue ? JSON.parse(toggleValue) : false);
+    } else {
+      setIsToggle(false)
+    }
+  }, [path]);
 
   return (
     <div className='filter'>
@@ -12,8 +30,7 @@ const FilterCheckbox = () => {
           type='checkbox'
           name='checkbox'
           id='checkbox'
-          checked={isToggle}
-          onChange={() => setIsToggle(!isToggle)}
+          onChange={handleToggle}
         />
         <span className={`filter__checkbox-visible ${isToggle && 'filter__checkbox-on'}`} />
         Короткометражки

@@ -1,28 +1,83 @@
 import MoviesCard from '../MoviesCard/MoviesCard';
 import './MoviesCardList.css';
-import movies from '../../utils/constant';
-import { useState } from 'react';
-/* import Preloader from '../Preloader/Preloader'; */
+import { useState, useEffect } from 'react';
+import useScreenWidth from '../../hooks/useScreenWidth';
+import {
+  BIG_SCREEN_MOVIES,
+  MIDDLE_SCREEN_MOVIES,
+  SMALL_SCREEN_MOVIES,
+  MORE_MOVIES_BIG_SCREEN,
+  MORE_MOVIES_SMALL_SCREEN,
+  BIG_SCREEN,
+  SMALL_SCREEN
+} from '../../utils/constant';
+import Preloader from '../Preloader/Preloader';
 
+const MoviesCardList = ({
+  filteredMovies,
+  isSavedMoviesPage,
+  onSave,
+  savedMovies,
+  onDelete,
+  isLoading,
+  isLiked,
+  setIsLiked }) => {
 
+  const [showMovieList, setShowMovieList] = useState(filteredMovies);
+  const screenWidth = useScreenWidth();
+  const searchedMoviesCount = filteredMovies ? filteredMovies.length : 0;
 
-const MoviesCardList = ({ isSavedMovies }) => {
-  const [moviesCards, setMoviesCards] = useState(movies);
+  const handleMoreClick = () => {
+    if (screenWidth > BIG_SCREEN) {
+      setShowMovieList(filteredMovies.slice(0, showMovieList.length + MORE_MOVIES_BIG_SCREEN))
+    } else {
+      setShowMovieList(filteredMovies.slice(0, showMovieList.length + MORE_MOVIES_SMALL_SCREEN))
+    }
+  }
 
-  const [cardCound, setCardCount] = useState(12);
-
-  const handleShowMore = () => {
-    setCardCount(cardCound + 3);
-  };
+  useEffect(() => {
+    if (screenWidth > BIG_SCREEN) {
+      setShowMovieList(filteredMovies.slice(0, BIG_SCREEN_MOVIES))
+    } else if (screenWidth > SMALL_SCREEN && screenWidth <= BIG_SCREEN) {
+      setShowMovieList(filteredMovies.slice(0, MIDDLE_SCREEN_MOVIES));
+    } else if (screenWidth <= SMALL_SCREEN) {
+      setShowMovieList(filteredMovies.slice(0, SMALL_SCREEN_MOVIES));
+    } else {
+      setShowMovieList(filteredMovies);
+    }
+  }, [screenWidth, filteredMovies])
 
   return (
     <section className="movie" >
       <ul className='movie__card-list'>
-        {moviesCards.slice(0, cardCound).map((movie, id) => (<MoviesCard movie={movie} key={id} isSavedMovies={isSavedMovies} />))}
+        {isLoading && (
+          <Preloader />
+        )}
+        {!isSavedMoviesPage ? showMovieList.sort().map((movie, id) => (
+          <MoviesCard
+            movie={movie}
+            key={id}
+            isSavedMoviesPage={isSavedMoviesPage}
+            onSave={onSave}
+            savedMovies={savedMovies}
+            onDelete={onDelete}
+            isLiked={isLiked}
+            setIsLiked={setIsLiked}
+          />
+        )) :
+          filteredMovies.map((movie, movieId) => (
+            <MoviesCard
+              movie={movie}
+              key={movieId}
+              isSavedMoviesPage={isSavedMoviesPage}
+              onDelete={onDelete}
+              savedMovies={savedMovies}
+            />
+          ))}
       </ul>
-      {!isSavedMovies &&
+      {!isSavedMoviesPage && showMovieList && searchedMoviesCount !== showMovieList.length &&
         <div className='movie__button'>
-          <button className='movie__btn' onClick={handleShowMore}>Ещё</button>
+          <button className='movie__btn' onClick={handleMoreClick}>Ещё</button>
         </div>}
     </section>
   )

@@ -1,8 +1,18 @@
 import { Link } from 'react-router-dom';
 import './Register.css';
 import Logo from '../Logo/Logo';
+import { useFormValidation } from "../../hooks/useFormValidation";
 
-const Register = () => {
+const Register = ({ onRegister }) => {
+  const { values, handleChange, errors, isValid } = useFormValidation();
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    if (!isValid) {
+      return;
+    }
+    onRegister(values.name, values.email, values.password);
+  }
 
   return (
     <section className='register'>
@@ -10,7 +20,7 @@ const Register = () => {
         <Logo />
         <h1 className='register__title'>Добро пожаловать!</h1>
       </div>
-      <form className="register__form">
+      <form className="register__form" onSubmit={handleSubmit}>
         <label className='register__value'>
           Имя
           <input
@@ -21,9 +31,11 @@ const Register = () => {
             required={true}
             minLength={2}
             maxLength={30}
-            defaultValue='Виталий'
+            value={values.name}
+            onChange={handleChange}
+            pattern="[A-Za-zА-Яа-яЁё\- ]+"
           />
-          <span className='register__span-error'></span>
+          <span className='register__span-error'>{errors.name}</span>
         </label>
         <label className='register__value'>
           E-mail
@@ -35,10 +47,12 @@ const Register = () => {
             required={true}
             minLength={5}
             maxLength={30}
-            defaultValue='pochta@yandex.ru'
+            value={values.email}
             autoFocus={true}
+            onChange={handleChange}
+            pattern='^[\w\-\.]+@([\w\-]+\.)+[\w\-]{2,4}$'
           />
-          <span className='register__span-error'></span>
+          <span className='register__span-error'>{errors.email}</span>
         </label>
         <label className='register__value'>
           Пароль
@@ -50,12 +64,13 @@ const Register = () => {
             required={true}
             minLength={5}
             maxLength={30}
-            defaultValue='qwerty12345'
+            value={values.password}
+            onChange={handleChange}
           />
-          <span className='register__span-error'>Что-то пошло не так...</span>
+          <span className='register__span-error'>{errors.password}</span>
         </label>
 
-        <button type="submit" className="register__button">Зарегистрироваться</button>
+        <button type="submit" className="register__button" disabled={!isValid}>Зарегистрироваться</button>
         <p className="register__link-login">
           Уже зарегистрированы?
           <Link to="/signin" className="register__button-login">Войти</Link>
